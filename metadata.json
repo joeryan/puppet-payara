@@ -1,0 +1,13 @@
+{
+  "author": "Ben Vanhaeren",
+  "dependencies": [],
+  "license": "Apache-2.0",
+  "name": "puppet-payara",
+  "operatingsystem_support": [],
+  "project_page": "https://github.com/vrtdev/puppet-payara.git",
+  "requirements": [],
+  "source": "https://github.com/vrtdev/puppet-payara.git",
+  "summary": "Puppet module for payara micro application server",
+  "tags": [],
+  "version": "0.1.0"
+}
