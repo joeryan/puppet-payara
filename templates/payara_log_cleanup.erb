@@ -1,0 +1,12 @@
+#!/bin/sh
+
+
+
+LOGDIR=<%= scope["payara::deployment::log_home"] %>
+COMPRESSDAYS=<%= scope["payara::deployment::log_compress_days"] %>
+REMOVEDAYS=<%= scope["payara::deployment::log_remove_days"]	%>
+
+test -d $LOGDIR || exit 0
+
+find $LOGDIR -name "*log*" -mtime +$COMPRESSDAYS ! -name "*gz" -exec gzip {} \;
+find $LOGDIR -name "*gz" -mtime +$REMOVEDAYS -exec rm {} \;

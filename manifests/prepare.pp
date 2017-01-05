@@ -1,3 +1,6 @@
+#
+# Payara installation preparation class
+#
 class payara::prepare ($payara_uid, $payara_gid, $payara_user, $payara_group, $payara_app_dir, $payara_log_dir) {
   File {
     ensure => directory,

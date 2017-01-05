@@ -1,0 +1,10 @@
+<%= scope["payara::deployment::log_rotate_files"] -%> {
+  copytruncate
+  notifempty
+  daily
+  missingok
+  rotate <%= scope["payara::deployment::log_remove_days"] %>
+  notifempty
+  compress
+  delaycompress
+}

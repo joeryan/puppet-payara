@@ -1,0 +1,98 @@
+#!/bin/bash
+#
+# File managed by puppet
+# - Module: payara
+# - Template: startscript.erb
+
+#GENERIC SCRIPT FOR STARTING UP APPLICATION UNDER PAYARA.  TO BE PLACED IN /ETC/INIT.D
+
+NAME=<%= scope["payara::deployment"] %>
+APP_PORT=<%= scope["payara::deployment::port_list::app"] %>
+HOST=<%= scope["payara::params::bind_address"] %>
+PAYARA_HOME=<%= scope["payara::params::payara_home"] %>
+
+
+JAVA_OPTS="-server -Xms<%= scope["payara::deployment::xms"] %>m -Xmx<%= scope["payara::deployment::xmx"] %>m -Dpayara.server.base.dir=<%= scope["payara::deployment::app_home"] %> -Djava.net.preferIPv4Stack=true -Dorg.payara.resolver.warning=true -Djava.awt.headless=true -Dbe.vrt.services.zuul.bootstrapPropertyFile=<%= scope["payara::deployment::app_home"] %>/configuration/bootstrap.properties -Dlogback.configurationFile=<%= scope["payara::deployment::app_home"] %>/configuration/logback.xml -Dlogging.propertyFile=<%= scope["payara::deployment::app_home"] %>/configuration/logging.properties"
+JAVA_OPTS="$JAVA_OPTS -Dfile.encoding=UTF-8"
+<% if scope["payara::deployment::jmxdebug"] -%>
+JAVA_OPTS="$JAVA_OPTS -Xrunjdwp:transport=dt_socket,address=<%= scope["payara::deployment:::port_list::debug"] %>,server=y,suspend=n"
+<% end -%>
+
+JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.port=<%= scope["payara::deployment::port_list::jmx"] %>"
+JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.authenticate=false"
+JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.ssl=false"
+
+
+# --------------------------- no editing needed after this line -------------------
+
+PID=`pgrep -u $NAME java`
+
+case "$1" in
+'start')
+        echo "Moving logs ..."
+        [ -f /data/logs/payara/${NAME}/startup.log ] && mv /data/logs/payara/${NAME}/startup.log /data/logs/payara/${NAME}/startup.log.`date +%Y-%m-%d-%T`
+        [ -f /data/logs/payara/${NAME}/boot.log ]    && mv /data/logs/payara/${NAME}/boot.log /data/logs/payara/${NAME}/boot.log.`date +%Y-%m-%d-%T`
+        [ -f /data/logs/payara/${NAME}/server.log ]  && mv /data/logs/payara/${NAME}/server.log /data/logs/payara/${NAME}/server.log.`date +%Y-%m-%d-%T`
+        echo "done."
+
+        [ "${PID}x" != x ] && echo "${NAME} is already running: ${PID}" && exit 0
+        echo "Starting ${NAME}"
+        exec 0<&-
+        exec 1>&-
+        exec 2>&-
+        su - ${NAME} -c "nohup java $JAVA_OPTS -jar /opt/payara-micro.jar  --noCluster --deploy <%= @app_home %>/deployments/${NAME}.war --port ${APP_PORT} 2>&1 | /usr/local/bin/rotate.pl /data/logs/payara/${NAME}/startup.log &"
+        ;;
+
+'stop')
+        [ "${PID}x" = x ] && echo "${NAME} not running" && exit 0
+        echo "Stopping ${NAME}"
+        kill ${PID}
+        KILL=0
+        KILL_TIMER=0
+        JBOSS_SHUT=1
+        while [ $KILL = "0" ] && [ "${PID}x" != x ] ; do
+        PID=`pgrep -u $NAME java`
+                JBOSS_SHUT=$?
+                let KILL_TIMER=KILL_TIMER+1
+                if [ $KILL_TIMER = "60" ]; then
+                        KILL=1
+                fi
+                sleep 1
+        done
+        if [ $KILL = "1" ]; then
+                echo "Payara won't go down, killing it now ..."
+                $0 kill
+        fi
+        echo "done."
+        ;;
+
+'kill')
+        [ "${PID}x" = x ] && echo "${NAME} not running" && exit 0
+        echo "killing ${NAME} (${PID})"
+        kill -3 ${PID}
+        kill -9 ${PID}
+        echo "Moving logs ..."
+        ;;
+
+'restart')
+        $0 stop
+        echo "Sleeping 10 seconds ..."
+        sleep 10
+        PID=`pgrep -u $NAME java`
+        [ "${PID}x" != x ] && echo "${NAME} is still running: ${PID}" && $0 kill
+        $0 start
+        ;;
+
+
+'status')
+        [ "${PID}x" = x ] && echo "${NAME} not running" && exit 3
+        echo "${NAME} running pid: ${PID}"
+        ;;
+
+*)
+        echo "Usage: $0 { start | stop | kill | restart | status }"
+        exit 1
+        ;;
+esac
+exit 0
+

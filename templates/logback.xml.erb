@@ -1,0 +1,85 @@
+<configuration scan="true" scanPeriod="30 seconds">
+	<appender name="FILE_7D" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>
+			<%= scope["payara::payara_log_dir"] %>/<%= scope["payara::deployment::package_name"] %>/<%= scope["payara::deployment::package_name"] %>.log
+		</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- daily rollover -->
+			<fileNamePattern>
+				<%= scope["payara::payara_log_dir"] %>/<%= scope["payara::deployment::package_name"] %>/<%= scope["payara::deployment::package_name"] %>.%d{yyyy-MM-dd}.log.gz
+			</fileNamePattern>
+
+			<maxHistory>
+				7
+			</maxHistory>
+		</rollingPolicy>
+
+		<encoder>
+			<pattern>
+				%d{HH:mm:ss.SSS} [%thread] %-5level [%X{X-Log-Transaction-Id}]  %logger{36} - %msg%n
+			</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="FILE_50MB" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>
+			<%= scope["payara::payara_log_dir"] %>/<%= scope["payara::deployment::package_name"] %>/<%= scope["payara::deployment::package_name"] %>.log
+		</file>
+
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<fileNamePattern>
+				<%= scope["payara::payara_log_dir"] %>/<%= scope["payara::deployment::package_name"] %>/<%= scope["payara::deployment::package_name"] %>.log.%i.log
+			</fileNamePattern>
+			<minIndex>
+				1
+			</minIndex>
+			<maxIndex>
+				4
+			</maxIndex>
+		</rollingPolicy>
+
+		<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<maxFileSize>
+				10MB
+			</maxFileSize>
+		</triggeringPolicy>
+		<encoder>
+			<pattern>
+				%d{HH:mm:ss.SSS} [%thread] %-5level [%X{X-Log-Transaction-Id}]  %logger{36} - %msg%n
+			</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="RockHopper" class="be.vrt.services.logging.log.consumer.appender.RockHopperAppender">
+		<host>
+			localhost
+		</host>
+		<port>
+			5514
+		</port>
+	</appender>
+
+	<appender name="Syslog" class="ch.qos.logback.classic.net.SyslogAppender">
+		<syslogHost>
+			<%= scope["payara::payara_log_host"] %>
+		</syslogHost>
+		<facility>
+			LOCAL7
+		</facility>
+		<suffixPattern>
+			<%= @name%>: %-5level %logger{36} - %msg%n
+		</suffixPattern>
+	</appender>
+
+	<logger name="be.vrt.services" level="debug" />
+
+	<logger name="CheckMkLogger" level="error">
+		<appender-ref ref="Syslog"/>
+	</logger>
+
+	<root level="info">
+		<appender-ref ref="FILE_50MB" />
+		<appender-ref ref="RockHopper" />
+	</root>
+</configuration>
+

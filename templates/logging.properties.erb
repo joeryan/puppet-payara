@@ -1,0 +1,6 @@
+log.connection.urls=http://<%= scope["payara::deployment::elastic_host"] %>:9200/<%= scope.lookupvar('payara::deployment::elastic_index') %>/_search?size=5000
+log.connection.stat.url=http://<%= scope["payara::deployment::elastic_host"] %>:9200/<%= scope.lookupvar('payara::deployment::elastic_index') %>/_search
+log.app=<%= scope["payara::deployment"] %>
+log.env=<%= scope["::environment"].upcase %>
+log.stats.apps.env=<%= scope["payara::deployment::log_display"] %>
+
