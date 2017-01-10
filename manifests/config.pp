@@ -4,6 +4,8 @@
 #
 # === Parameters:
 #
+# @param payara_log_host    [String]  Sysloghost for application logging
+#
 # @param app_home    [String]  Payara app dir
 #
 # @param user        [String]  Payara app user
@@ -11,7 +13,8 @@
 # @param properties  [Hash]  Payara properties
 #
 define payara::config (
-  $app_home,
+  $payara_log_host,
+  $app_home   = "/data/apps/payara/${name}",
   $user       = $name,
   $properties = {
   }

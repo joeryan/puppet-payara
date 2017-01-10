@@ -21,21 +21,19 @@
 #
 
 class payara (
-  $uid             = $payara::params::payara_uid,
-  $gid             = $payara::params::payara_gid,
-  $user            = $payara::params::payara_user,
-  $group           = $payara::params::payara_group,
-  $payara_app_dir  = $payara::params::payara_app_dir,
-  $payara_log_dir  = $payara::params::payara_log_dir,
-  $payara_log_host = $payara::params::payara_log_host) inherits payara::params {
+  $uid            = $payara::params::payara_uid,
+  $gid            = $payara::params::payara_gid,
+  $user           = $payara::params::payara_user,
+  $group          = $payara::params::payara_group,
+  $payara_app_dir = $payara::params::payara_app_dir,
+  $payara_log_dir = $payara::params::payara_log_dir) inherits payara::params {
   class { 'payara::prepare':
-    payara_uid      => $uid,
-    payara_gid      => $gid,
-    payara_user     => $user,
-    payara_group    => $group,
-    payara_app_dir  => $payara_app_dir,
-    payara_log_dir  => $payara_log_dir,
-    payara_log_host => $payara_log_host,
+    payara_uid     => $uid,
+    payara_gid     => $gid,
+    payara_user    => $user,
+    payara_group   => $group,
+    payara_app_dir => $payara_app_dir,
+    payara_log_dir => $payara_log_dir,
   }
   include payara::install
   Class['payara::prepare'] ->

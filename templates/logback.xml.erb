@@ -61,7 +61,7 @@
 
 	<appender name="Syslog" class="ch.qos.logback.classic.net.SyslogAppender">
 		<syslogHost>
-			<%= scope["payara::payara_log_host"] %>
+			<%= scope["payara::config::payara_log_host"] %>
 		</syslogHost>
 		<facility>
 			LOCAL7
