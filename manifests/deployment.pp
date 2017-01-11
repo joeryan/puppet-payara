@@ -25,9 +25,9 @@ define payara::deployment (
     default => false,
   }
   $port_list = {
-    'app'   => 8080 + $::_port_offset,
-    'jmx'   => 20000 + $::_port_offset,
-    'debug' => 20001 + $::_port_offset
+    'app'   => 8080 + $port_offset,
+    'jmx'   => 20000 + $port_offset,
+    'debug' => 20001 + $port_offset
   }
 
   ensure_resource('payara::user', $name, {
@@ -36,11 +36,6 @@ define payara::deployment (
     usergroups => $usergroups,
     app_home   => $app_home,
     log_home   => $log_home,
-  }
-  )
-
-  ensure_resource('payara::config', $name, {
-    app_home => $app_home
   }
   )
 
