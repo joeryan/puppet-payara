@@ -37,6 +37,8 @@ class payara (
   }
   include payara::install
   Class['payara::prepare'] ->
-  Class['payara::install']
+  Class['payara::install'] ->
+  Payara::Config <| |> ->
+  Payara::Deployment <| |>
 }
 
